@@ -12,6 +12,7 @@ import pkg from "./package.json";
 export default [
     {
         input: './packages/index.ts',
+        external: ['antd', 'ahooks', 'react-dialog', '@ant-design/icons'],
         output: [{
             dir: path.dirname(pkg.module),
             format: "es",
