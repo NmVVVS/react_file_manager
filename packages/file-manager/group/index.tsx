@@ -1,29 +1,30 @@
 import React, {useState} from "react";
 import Style from './index.module.scss';
-import {FileSelectorGroupProps, FileSelectorProps} from "../Props";
+import {FileGroup, FileSelectorGroupProps, FileSelectorProps} from "../interface";
+import Global from "../Global";
 
 
-const FileSelectorGroup: React.FC<FileSelectorGroupProps & { onGroupChange: (groupId: string) => void }> = (props) => {
+const FileSelectorGroup: React.FC<{ group: FileGroup[], onGroupChange: (groupId: string) => void }> = (props) => {
 
-		const [currentGroup, setCurrentGroup] = useState<string>(props.currentGroup || '');
+    const [currentGroup, setCurrentGroup] = useState<string>(props.group[0].value);
 
-		const onGroupChange = (groupId: string) => {
-				setCurrentGroup(groupId);
-				props.onGroupChange(groupId);
-		}
+    const onGroupChange = (groupId: string) => {
+        setCurrentGroup(groupId);
+        props.onGroupChange(groupId);
+    }
 
-		return <div className={Style.groupRoot}>
-				<ul className={Style.groupList}>
-						{
-								props.groups?.map(item => {
-										return <li key={item.id}
-															 className={item.id === currentGroup ? Style.active : ''}
-															 onClick={() => onGroupChange(item.id)}>{item.title}</li>;
-								})
-						}
-				</ul>
-				<div className={Style.addGroupContainer}>新增分组</div>
-		</div>
+    return <div className={Style.groupRoot}>
+        <ul className={Style.groupList}>
+            {
+                props.group.map(item => {
+                    return <li key={item.value}
+                               className={item.value === currentGroup ? Style.active : ''}
+                               onClick={() => onGroupChange(item.value)}>{item.label}</li>;
+                })
+            }
+        </ul>
+        <div className={Style.addGroupContainer}>新增分组</div>
+    </div>
 }
 
 export default FileSelectorGroup;

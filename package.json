@@ -1,11 +1,12 @@
 {
-    "name": "react-lib-template",
+    "name": "react-file-manager",
     "version": "0.0.1",
     "author": {
         "name": "NmVVVS",
         "email": "xevckq@proton.me"
     },
-    "description": "React Lib Template",
+    "description": "React File Manager",
+    "homepage": "https://github.com/NmVVVS/react_file_manager",
     "keywords": [
         "react"
     ],

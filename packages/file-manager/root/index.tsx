@@ -1,160 +1,168 @@
-import React, {useEffect, useRef, useState} from "react";
-import {FilePagination, FileSelectorProps, MyFile} from "../Props";
+import React, {useEffect, useMemo, useRef, useState} from "react";
+import {FileGroup, FileInfo, FilePagination, FileSelectorProps, FileType} from "../interface";
 import Style from './index.module.scss';
 import FileSelectorGroup from "../group";
 import FileSelectorContent from "../content";
-import {Button, Pagination, Radio, Space, Spin, Upload} from "antd";
-import {CloseOutlined, UploadOutlined} from '@ant-design/icons';
-import {RcFile} from "antd/es/upload/interface";
-import {useGetState} from 'ahooks';
-import {Simulate} from "react-dom/test-utils";
-import waiting = Simulate.waiting;
+import {Button, Pagination, Radio, Spin, Upload} from "antd";
+import {UploadOutlined} from '@ant-design/icons';
+import Global from "../Global";
+import {CheckboxOptionType} from "antd/es/checkbox/Group";
 
-const FileSelectorRoot = (props: FileSelectorProps & { onCancel: VoidFunction, waitUploadFile: MyFile[] }) => {
+const FileSelectorRoot = (props: FileSelectorProps & { onCancel: VoidFunction, waitUploadFile: FileInfo[] }) => {
 
-    const _groupId = useRef(""), _fileType = useRef(''), _pageIndex = useRef(1),
-        [filePagination, setFilePagination, getFilePagination] = useGetState<FilePagination>(), [loading, setLoading] = useState(false),
-        [currentType, setCurrentType] = useState<string>(props.limitFileType || props.fileTypes[0].accept);
-
-    let fileTypes = props.fileTypes.map(item => ({label: item.label, value: item.accept}));
-
-    if (props.limitFileType !== undefined) {
-        fileTypes = fileTypes.map(item => ({
-            label: item.label,
-            value: item.value,
-            disabled: item.value !== props.limitFileType
-        }));
-    }
-
+    const [loading, setLoading] = useState<boolean>(false),
+        [currentFileType, setCurrentFileType] = useState<string>(""),
+        [datasource, setDatasource] = useState<FilePagination>(), _currentGroup = useRef<string>(""),
+        query = useRef<{ fileType?: string, group?: string, pageIndex?: number }>({});
+    let group: FileGroup[], [fileTypeOption, setFileTypeOption] = useState<CheckboxOptionType[]>();
     useEffect(() => {
-        for (let item of props.waitUploadFile) {
-            item.onUploading = fileUploadProgress;
-            console.log(item);
+        if (Global.config === undefined) {
+            console.error("react-file-manager 暂未初始化，请先调用【ReactFileManager.init】初始化后重试！")
         }
+
+        if (props.groups !== undefined) {
+            group = props.groups;
+        } else if (Global.config?.group !== undefined) {
+            group = Global.config.group;
+        }
+
+        let fileType: FileType[] | undefined = undefined;
+        if (props.fileType !== undefined) {
+            fileType = props.fileType;
+        } else if (Global.config?.fileType !== undefined) {
+            fileType = Global.config?.fileType;
+        }
+
+        if (fileType !== undefined) {
+            fileTypeOption = fileType.map(item => ({
+                label: item.label,
+                value: item.accept,
+                disabled: false
+            }));
+        }
+        // item.accept !== props.limitFileType
+
+        if (fileTypeOption !== undefined) {
+            if (props.limitFileType !== undefined) {
+                fileTypeOption = fileTypeOption.map(item => ({...item, disabled: item.value !== props.limitFileType}));
+            }
+            query.current.fileType = fileType![0].accept;
+            setCurrentFileType(fileType![0].accept);
+            setFileTypeOption([...fileTypeOption]);
+        }
+
+        if (group !== undefined) {
+            query.current.group = group![0].value;
+        }
+
+        query.current.pageIndex = 1;
 
         loadFileList();
-
-        return () => {
-            for (let item of props.waitUploadFile) {
-                delete item.onUploading;
-            }
-        }
 
     }, []);
 
+    const onFileTypeChange = (fileType: string) => {
+        query.current.fileType = fileType;
+        loadFileList();
+    }
 
     const onGroupChange = (groupId: string) => {
-        _groupId.current = groupId;
+        query.current.group = groupId;
         loadFileList();
     }
 
-    const onFileTypeChange = (fileType: string) => {
-        _fileType.current = fileType;
-        setCurrentType(fileType);
+    const onPageChange = (pageIndex: number) => {
+        query.current.pageIndex = pageIndex;
         loadFileList();
     }
 
-    const onPageIndexChange = (pageIndex: number) => {
-        _pageIndex.current = pageIndex;
-        loadFileList();
-    }
-
-    const onSelectedFileChange = (selectedFiles: MyFile[]) => {
+    const onSelectedFileChange = (selectedFiles: FileInfo[]) => {
         console.log(selectedFiles);
     }
 
     const loadFileList = () => {
         setLoading(true);
-        props.getFiles(_pageIndex.current, _groupId.current, _fileType.current).then(res => {
-
-            let data: MyFile[] = res;
-            if (props.waitUploadFile.length !== 0) {
-                data = [...props.waitUploadFile.reverse(), ...data.splice(0, 18 - props.waitUploadFile.length)]
-            }
-
-            setFilePagination({data: data, total: 100, pageIndex: _pageIndex.current});
+        Global.config?.loadFile(query.current.pageIndex || 1, 18, query.current.fileType || "", query.current.group || "").then(res => {
+            setDatasource({...res});
             setLoading(false);
         });
     }
 
-    const createGroupElement = () => {
-        if (props.groups === undefined) return null;
+    const groupNode = useMemo(() => {
+        if (group === undefined) return null;
+        _currentGroup.current = group[0].value;
         return <>
-            <FileSelectorGroup groups={props.groups} onGroupChange={onGroupChange}/>
+            <FileSelectorGroup group={group} onGroupChange={onGroupChange}/>
             <div className={Style.driver}></div>
         </>
-    }
+    }, [])
 
-    function fileUploadProgress(this: MyFile, progress: number) {
-        this.progress = progress;
-        setFilePagination({...filePagination!, data: [...getFilePagination()!.data]});
-    }
+    // function fileUploadProgress(this: MyFile, progress: number) {
+    //     this.progress = progress;
+    //     setFilePagination({...filePagination!, data: [...getFilePagination()!.data]});
+    // }
+    //
+    // const upload = (file: RcFile) => {
+    //     if (props.onUpload === undefined) return false;
+    //     if (filePagination === undefined) return false;
+    //     if (filePagination.data.length >= 18) filePagination.data.shift();
+    //
+    //     const newFile: MyFile = {title: file.name, cover: '', onUploading: fileUploadProgress, file};
+    //     props.waitUploadFile.push(newFile);
+    //     filePagination.data.unshift(newFile);
+    //     setFilePagination({...filePagination, data: [...filePagination.data]});
+    //
+    //     props.onUpload(newFile).then(r => {
+    //         newFile.cover = r;
+    //         delete newFile.progress;
+    //         delete newFile.file;
+    //         delete newFile.onUploading;
+    //         props.waitUploadFile.splice(props.waitUploadFile.indexOf(newFile, 1));
+    //         setFilePagination({...filePagination, data: [...getFilePagination()!.data]});
+    //     });
+    //     return false;
+    // }
+    //
 
-    const upload = (file: RcFile) => {
-        if (props.onUpload === undefined) return false;
-        if (filePagination === undefined) return false;
-        if (filePagination.data.length >= 18) filePagination.data.shift();
+    const fileTypeRadioGroup = useMemo(() => {
+        if (fileTypeOption === undefined) return null;
 
-        const newFile: MyFile = {title: file.name, cover: '', onUploading: fileUploadProgress, file};
-        props.waitUploadFile.push(newFile);
-        filePagination.data.unshift(newFile);
-        setFilePagination({...filePagination, data: [...filePagination.data]});
+        return <Radio.Group
+            options={fileTypeOption} optionType="button" value={currentFileType} buttonStyle="solid"
+            onChange={(e) => onFileTypeChange(e.target.value)}/>
+    }, [fileTypeOption, currentFileType]);
 
-        props.onUpload(newFile).then(r => {
-            newFile.cover = r;
-            delete newFile.progress;
-            delete newFile.file;
-            delete newFile.onUploading;
-            props.waitUploadFile.splice(props.waitUploadFile.indexOf(newFile, 1));
-            setFilePagination({...filePagination, data: [...getFilePagination()!.data]});
-        });
-        return false;
-    }
+    const toolbar = useMemo(() => {
+        return <div className={Style.toolbarContainer}>
+            {fileTypeRadioGroup}
+            {/*beforeUpload={upload}*/}
+            <Upload accept={currentFileType} showUploadList={false}>
+                <Button type="primary" icon={<UploadOutlined/>}>点击上传</Button>
+            </Upload>
+        </div>
+    }, [currentFileType, fileTypeOption]);
 
+    const pagination = useMemo(() => {
+        return <div className={Style.pagination}>
+            <Pagination total={datasource?.total} pageSize={18}
+                        current={datasource?.pageIndex}
+                        showSizeChanger={false} onChange={(page: number) => onPageChange(page)}/>
+        </div>
+    }, [datasource]);
 
     return <Spin tip="数据加载中..." spinning={loading}>
         <div className={Style.root}>
             <div className={Style.body}>
-                {createGroupElement()}
+                {groupNode}
                 <div className={Style.content}>
-                    <div className={Style.toolbarContainer}>
-                        <Radio.Group
-                            options={fileTypes} optionType="button" value={currentType} buttonStyle="solid"
-                            onChange={(e) => onFileTypeChange(e.target.value)}/>
-                        <Upload accept={currentType} beforeUpload={upload} showUploadList={false}>
-                            <Button type="primary" icon={<UploadOutlined/>}>点击上传</Button>
-                        </Upload>
-                    </div>
-                    <FileSelectorContent {...props} fileList={filePagination?.data}
+                    {toolbar}
+                    <FileSelectorContent fileList={datasource?.data} multiple={false}
                                          onSelectedFileChange={onSelectedFileChange}/>
-                    <div className={Style.pagination}>
-                        <Pagination total={filePagination?.total} pageSize={18}
-                                    current={filePagination?.pageIndex}
-                                    showSizeChanger={false} onChange={(page: number) => onPageIndexChange(page)}/>
-                    </div>
+                    {pagination}
                 </div>
             </div>
         </div>
     </Spin>
-
-
-    // return <div>
-    //     <Spin tip="数据加载中..." spinning={loading} size="small">
-    //         <div className={Style.root}>
-    //             <div className={Style.header}>
-    //                 <div>文件选择器</div>
-    //                 <div className={Style.close} onClick={props.onCancel}><CloseOutlined/></div>
-    //             </div>
-    //
-    //             <div className={Style.footer}>
-    //                 <Space>
-    //                     <Button onClick={props.onCancel}>取消</Button>
-    //                     <Button type="primary">确认</Button>
-    //                 </Space>
-    //             </div>
-    //         </div>
-    //     </Spin>
-    // </div>
 
 }
 

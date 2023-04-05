@@ -1,5 +1,7 @@
-import FileManager from "./file-manager";
 
-const ReactFileManager = FileManager;
+import {ReactFileManager, ReactFileManagerNode} from "./file-manager";
 
-export default ReactFileManager
+
+export {ReactFileManager, ReactFileManagerNode};
+
+export default ReactFileManager;
