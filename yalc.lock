@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "@ghgenz/react-dialog": {
+      "version": "1.0.6",
+      "signature": "8cb8b07c1c88de953dfa5cd80c992026"
+    }
+  }
+}

@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {openDialog} from "@ghgenz/react-dialog";
+// import {openDialog} from "@ghgenz/react-dialog";
 import FileManager, {init} from "../packages";
 import {FileInfo, FileRequest} from "../packages/file-manager/interface";
+import {openDialog} from "@ghgenz/react-dialog";
 
 
 const getFiles = (pageIndex: number, group: string, fileType: string): Promise<any> => {
@@ -29,7 +30,7 @@ init({
 
             const result: FileInfo[] = [];
             for (let i = 0; i < 18; i++) {
-                result.push(item);
+                result.push({...item, value: item.value + i});
             }
 
             resolve({pageIndex: 1, total: 100, data: result});
@@ -58,6 +59,9 @@ init({
         return new Promise((resolve) => {
 
         });
+    },
+    onSelected: (files) => {
+        console.log(files);
     }
 })
 
@@ -67,11 +71,13 @@ const fileManager = <FileManager/>
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <div>
         <button onClick={() => {
-            console.log("AA");
-            openDialog({
+            const closeDialog = openDialog({
                 width: 735,
                 title: "文件管理器",
-                //     children: <div>aaa</div>,
+                children: <FileManager count={2}/>,
+                onOk: () => {
+                    closeDialog();
+                }
             })
         }}>显示
         </button>
