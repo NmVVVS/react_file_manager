@@ -1,5 +1,5 @@
 {
-    "name": "react-file-manager",
+    "name": "@ghgenz/react-file-manager",
     "version": "1.0.1",
     "author": {
         "name": "NmVVVS",
@@ -19,7 +19,7 @@
     "scripts": {
         "dev": "vite",
         "build": "rimraf es && rollup -c",
-        "push": "yarn build && publish --access public",
+        "push": "yarn build && npm publish --access public",
         "start:webpack": "react-scripts start",
         "build:webpack": "react-scripts build",
         "test:webpack": "react-scripts test",
