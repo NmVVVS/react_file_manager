@@ -1,7 +1,5 @@
+import FileManager from './file-manager';
+// import {init} from "./file-manager";
 
-import {ReactFileManager, ReactFileManagerNode} from "./file-manager";
-
-
-export {ReactFileManager, ReactFileManagerNode};
-
-export default ReactFileManager;
+export * from './file-manager';
+export default FileManager;

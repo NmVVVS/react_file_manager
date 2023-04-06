@@ -1,57 +1,38 @@
-import {RcFile} from "antd/es/upload/interface";
+export interface FileGroup {
+    value: string;
+    label: string;
+}
 
 export interface FileType {
     accept: string;
     label: string;
 }
 
-export interface FileGroup {
-    label: string;
+export interface FileInfo {
     value: string;
+    label: string;
+    cover: string;
 }
 
-export interface FileSelectorContentProps {
-    fileType?: FileType[];
-    getFiles: (pageIndex: number, group: string, fileType: string) => Promise<any>;
-    limitFileType?: string;
-    multiple?: boolean;
-    // onUpload?: (file: MyFile) => Promise<any>;
-}
-
-export interface FileSelectorGroupProps {
-    groups?: FileGroup[];
-    currentGroup?: string;
-}
-
-export interface FileSelectorProps extends FileSelectorContentProps, FileSelectorGroupProps {
-}
-
-// export interface MyFile {
-//     title: string;
-//     cover: string;
-//     file?: RcFile;
-//     progress?: number;
-//     onUploading?: (progress: number) => void;
-// }
-
-export interface FilePagination {
-    total: number;
+export interface FileRequest {
     pageIndex: number;
+    type?: string;
+    group?: string;
+}
+
+export interface FileResponse {
+    pageIndex: number;
+    total: number;
     data: FileInfo[];
 }
 
-export interface FileInfo {
-    title: string;
-    cover: string;
-    accept: string;
-    size: number;
-    // onUploading?: (progress: number) => void;
-}
-
-
-export interface ReactFileManagerConfig {
-    loadFile: (pageIndex: number, pageSize: number, accept?: string, group?: string) => Promise<FilePagination>;
-    uploadFile: (file: File) => Promise<FileInfo>;
-    fileType?: FileType[];
+export interface FileManagerProps {
     group?: FileGroup[];
+    type?: FileType[];
+    onRequest?: (params: FileRequest) => Promise<FileResponse>;
+    onUpload?: (file: File, onProgress: (progress: number) => void) => Promise<any>;
+    onRemoveFile?: (file: FileInfo[]) => Promise<any>;
+    count?: number;
+    onGroupEdit?: (group: FileGroup) => Promise<any>;
+    limitType?: FileType;
 }
