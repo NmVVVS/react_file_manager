@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import Style from '../assets/style/file.manager.module.scss';
 import {FileGroup, FileInfo, FileManagerProps, FileResponse, FileType} from "./interface";
 import {Config} from "./init";
-import {Button, Checkbox, Image, Input, message, Pagination, Popover, Progress, Radio, Upload} from "antd";
+import {Button, Checkbox, Empty, Image, Input, message, Pagination, Popover, Progress, Radio, Upload} from "antd";
 import {RcFile} from "antd/es/upload/interface";
 import {useGetState, useMap} from "ahooks";
 import FileUpload from "./FileUpload";
@@ -132,6 +132,11 @@ const FileManager: React.FC<FileManagerProps> = (props) => {
     }
 
     const fileList = useMemo(() => {
+        if (datasource?.data.length === 0) return <div
+            style={{height: '100%', display: "flex", flexDirection: "column", justifyContent: "center"}}>
+            <Empty description="这里空空如也~"/>
+        </div>
+
         return datasource?.data.map((item, index) => {
             let fileUpload: FileUpload | undefined = get(item);
             if (fileUpload?.percent === 100) remove(item);

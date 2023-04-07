@@ -33,7 +33,7 @@ init({
                 result.push({...item, value: item.value + i});
             }
 
-            resolve({pageIndex: 1, total: 100, data: result});
+            resolve({pageIndex: 1, total: 100, data: []});
         });
     },
     onUpload: (file, onProgress) => {
@@ -75,9 +75,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                 width: 735,
                 title: "文件管理器",
                 children: <FileManager count={2}/>,
-                onOk: () => {
-                    closeDialog();
-                }
+                // onOk: () => {
+                //     closeDialog();
+                // }
             })
         }}>显示
         </button>
