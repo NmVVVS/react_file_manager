@@ -1,6 +1,6 @@
 {
     "name": "react-file-manager",
-    "version": "0.0.1",
+    "version": "1.0.2",
     "author": {
         "name": "NmVVVS",
         "email": "xevckq@proton.me"
@@ -19,7 +19,7 @@
     "scripts": {
         "dev": "vite",
         "build": "rimraf es && rollup -c",
-        "publish": "yarn build && npm publish",
+        "publish": "yarn build && npm publish --access public",
         "start:webpack": "react-scripts start",
         "build:webpack": "react-scripts build",
         "test:webpack": "react-scripts test",
@@ -42,6 +42,7 @@
         "antd": "^5.3.3"
     },
     "devDependencies": {
+        "@ghgenz/react-dialog": "1.0.0",
         "@rollup/plugin-commonjs": "^22.0.2",
         "@rollup/plugin-node-resolve": "^14.1.0",
         "@rollup/plugin-strip": "^2.1.0",
