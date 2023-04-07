@@ -35,4 +35,5 @@ export interface FileManagerProps {
     count?: number;
     onGroupEdit?: (group: FileGroup) => Promise<any>;
     limitType?: FileType;
+    onSelected?: (files: FileInfo[]) => void;
 }

@@ -1,0 +1,55 @@
+{
+  "name": "@ghgenz/react-dialog",
+  "version": "1.0.6",
+  "author": {
+    "name": "xevckq@proton.me",
+    "email": "xevckq@proton.me"
+  },
+  "description": "React dialog component",
+  "keywords": [
+    "react",
+    "dialog",
+    "ui"
+  ],
+  "license": "MIT",
+  "module": "es/index.js",
+  "types": "es/index.d.ts",
+  "files": [
+    "es"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "rimraf es && rollup -c",
+    "push": "yarn build && npm publish --access public",
+    "chromatic": "npx chromatic --project-token=10adf2ba5cae",
+    "start:webpack": "react-scripts start",
+    "build:webpack": "react-scripts build",
+    "test:webpack": "react-scripts test",
+    "eject:webpack": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "typescript": "^4.8.2",
+    "vite": "^4.2.1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "readme": "ERROR: No README data found!",
+  "yalcSig": "8cb8b07c1c88de953dfa5cd80c992026"
+}
